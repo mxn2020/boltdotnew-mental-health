@@ -1,3 +1,4 @@
+//src/components/mood/ScaleSelector.tsx
 import React from 'react';
 import { clsx } from 'clsx';
 

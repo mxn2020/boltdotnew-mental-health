@@ -1,3 +1,5 @@
+// src/pages/auth/Anonymous.tsx
+
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Heart, Shield, CheckCircle, AlertTriangle } from 'lucide-react';

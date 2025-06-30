@@ -1,3 +1,5 @@
+// src/components/ai/RiskAssessmentCard.tsx
+
 import React from 'react';
 import { Shield, AlertTriangle, Phone, Heart } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card';

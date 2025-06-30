@@ -1,3 +1,4 @@
+//src/pages/CopingTools.tsx
 import React, { useState, useEffect } from 'react';
 import { Heart, Filter, Search, Shield, Star, Clock } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';

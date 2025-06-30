@@ -1,3 +1,5 @@
+// src/lib/peerSupport.ts
+
 import { supabase } from './supabase';
 import { encryption } from './encryption';
 

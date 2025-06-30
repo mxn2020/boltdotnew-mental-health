@@ -1,3 +1,4 @@
+//src/lib/encryption.ts
 import CryptoJS from 'crypto-js';
 
 // Client-side encryption utilities for sensitive mental health data

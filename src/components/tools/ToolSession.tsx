@@ -1,3 +1,5 @@
+//src/components/tools/ToolSession.tsx
+
 import React, { useState, useEffect } from 'react';
 import { X, Play, Pause, RotateCcw, CheckCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card';

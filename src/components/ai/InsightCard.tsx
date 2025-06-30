@@ -1,3 +1,5 @@
+// src/components/ai/InsightCard.tsx
+
 import React from 'react';
 import { Brain, TrendingUp, AlertTriangle, Lightbulb, Target } from 'lucide-react';
 import { Card, CardContent } from '../ui/Card';

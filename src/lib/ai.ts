@@ -1,3 +1,5 @@
+// src/lib/ai.ts
+
 import { supabase } from './supabase';
 import { encryption } from './encryption';
 import { MoodEntry } from './mood';

@@ -1,3 +1,4 @@
+//src/pages/Insights.tsx
 import React, { useState, useEffect } from 'react';
 import { Brain, TrendingUp, Target, RefreshCw, Sparkles } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';

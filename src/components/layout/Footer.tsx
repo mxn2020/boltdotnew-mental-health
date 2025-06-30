@@ -1,3 +1,5 @@
+//src/components/layout/Footer.tsx
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, Shield, Phone } from 'lucide-react';

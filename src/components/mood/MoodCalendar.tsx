@@ -1,3 +1,5 @@
+//src/components/mood/MoodCalendar.tsx
+
 import React from 'react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday } from 'date-fns';
 import { clsx } from 'clsx';

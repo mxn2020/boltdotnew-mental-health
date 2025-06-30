@@ -1,3 +1,4 @@
+//src/components/mood/MoodSelector.tsx
 import React from 'react';
 import { clsx } from 'clsx';
 

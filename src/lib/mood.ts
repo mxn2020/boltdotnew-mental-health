@@ -1,3 +1,4 @@
+// src/lib/mood.ts
 import { supabase } from './supabase';
 import { encryption } from './encryption';
 

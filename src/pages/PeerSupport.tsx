@@ -1,3 +1,5 @@
+// src/pages/PeerSupport.tsx
+
 import React, { useState, useEffect } from 'react';
 import { Users, MessageCircle, Plus, Search, Heart, Shield } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';

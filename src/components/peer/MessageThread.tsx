@@ -1,3 +1,5 @@
+// src/components/peer/MessageThread.tsx
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Send, Flag, Shield } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card';

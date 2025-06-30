@@ -1,3 +1,5 @@
+//src/components/peer/SupportGroupCard.tsx
+
 import React from 'react';
 import { Users, Calendar, MessageCircle, Shield } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card';

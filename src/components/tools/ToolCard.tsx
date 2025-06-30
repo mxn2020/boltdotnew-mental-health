@@ -1,3 +1,5 @@
+//src/components/tools/ToolCard.tsx
+
 import React from 'react';
 import { Clock, Star, Users, BookOpen, Zap, Shield } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card';

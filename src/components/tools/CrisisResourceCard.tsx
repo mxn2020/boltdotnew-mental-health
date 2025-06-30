@@ -1,3 +1,5 @@
+// src/components/tools/CrisisResourceCard.tsx
+
 import React from 'react';
 import { Phone, MessageCircle, Globe, AlertTriangle } from 'lucide-react';
 import { Card, CardContent } from '../ui/Card';

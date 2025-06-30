@@ -1,3 +1,5 @@
+//src/components/layout/Header.tsx
+
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Heart, Menu, X, Shield, Phone } from 'lucide-react';

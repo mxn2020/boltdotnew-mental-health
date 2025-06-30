@@ -1,3 +1,5 @@
+//src/components/ai/PatternCard.tsx
+
 import React from 'react';
 import { Target, Repeat, Calendar, TrendingUp } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card';

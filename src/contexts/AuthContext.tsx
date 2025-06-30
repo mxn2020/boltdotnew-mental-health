@@ -54,54 +54,114 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [loading, setLoading] = useState(true);
   const [isAnonymous, setIsAnonymous] = useState(false);
 
+  // Helper function to clear all auth state
+  const clearAuthState = () => {
+    setUser(null);
+    setProfile(null);
+    setSession(null);
+    setIsAnonymous(false);
+    encryption.clearKey();
+  };
+
+  // Helper function to check for anonymous session
+  const checkAnonymousSession = () => {
+    const anonymousId = localStorage.getItem('mh_anonymous_id');
+    if (anonymousId) {
+      setIsAnonymous(true);
+      encryption.initializeKey();
+      return true;
+    }
+    return false;
+  };
+
   useEffect(() => {
+    let mounted = true;
+
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        encryption.initializeKey(session.access_token);
-        loadUserProfile(session.user.id);
-      } else {
-        // Check for anonymous session
-        const anonymousId = localStorage.getItem('mh_anonymous_id');
-        if (anonymousId) {
-          setIsAnonymous(true);
-          encryption.initializeKey();
+    const initializeAuth = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (!mounted) return;
+
+        if (error) {
+          console.error('Error getting session:', error);
+          // If there's an error getting session, check for anonymous mode
+          if (!checkAnonymousSession()) {
+            clearAuthState();
+          }
+          setLoading(false);
+          return;
+        }
+
+        if (session?.user) {
+          setSession(session);
+          setUser(session.user);
+          encryption.initializeKey(session.access_token);
+          await loadUserProfile(session.user.id);
+          setIsAnonymous(false);
+        } else {
+          // No authenticated session, check for anonymous
+          if (!checkAnonymousSession()) {
+            clearAuthState();
+          }
+        }
+      } catch (error) {
+        console.error('Error initializing auth:', error);
+        if (!checkAnonymousSession()) {
+          clearAuthState();
+        }
+      } finally {
+        if (mounted) {
+          setLoading(false);
         }
       }
-      setLoading(false);
-    });
+    };
+
+    initializeAuth();
 
     // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      
+      if (!mounted) return;
+
+      console.log('Auth state change:', event, session?.user?.id);
+
+      // Handle sign out event explicitly
+      if (event === 'SIGNED_OUT') {
+        clearAuthState();
+        // Don't check for anonymous session on explicit sign out
+        setLoading(false);
+        return;
+      }
+
       if (session?.user) {
+        setSession(session);
+        setUser(session.user);
         encryption.initializeKey(session.access_token);
         await loadUserProfile(session.user.id);
         setIsAnonymous(false);
       } else {
+        // No session - check if we should be in anonymous mode
+        setSession(null);
+        setUser(null);
         setProfile(null);
-        encryption.clearKey();
         
-        // Check for anonymous session
-        const anonymousId = localStorage.getItem('mh_anonymous_id');
-        if (anonymousId) {
-          setIsAnonymous(true);
-          encryption.initializeKey();
-        } else {
+        // Only check for anonymous session if we're not explicitly signing out
+        if (event !== 'SIGNED_OUT' && !checkAnonymousSession()) {
           setIsAnonymous(false);
+          encryption.clearKey();
         }
       }
+      
       setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const loadUserProfile = async (userId: string) => {
@@ -168,6 +228,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const signIn = async (email: string, password: string) => {
     try {
+      // Clear any existing anonymous session before signing in
+      localStorage.removeItem('mh_anonymous_id');
+      localStorage.removeItem('mh_device_key');
+      
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -181,18 +245,44 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
-    localStorage.removeItem('mh_anonymous_id');
-    localStorage.removeItem('mh_device_key');
-    encryption.clearKey();
-    setIsAnonymous(false);
+    try {
+      setLoading(true);
+      
+      // Clear local storage first
+      localStorage.removeItem('mh_anonymous_id');
+      localStorage.removeItem('mh_device_key');
+      
+      // Clear encryption keys
+      encryption.clearKey();
+      
+      // Clear local state immediately
+      clearAuthState();
+      
+      // Sign out from Supabase
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error('Error signing out:', error);
+        // Even if Supabase signout fails, we've cleared local state
+      }
+    } catch (error) {
+      console.error('Error during sign out:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const createAnonymousSession = async () => {
+    // Clear any existing auth session first
+    await supabase.auth.signOut();
+    
     const anonymousId = encryption.generateAnonymousId();
     localStorage.setItem('mh_anonymous_id', anonymousId);
     encryption.initializeKey();
     setIsAnonymous(true);
+    setUser(null);
+    setProfile(null);
+    setSession(null);
   };
 
   const upgradeToEmail = async (email: string, password: string) => {
@@ -212,6 +302,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         await createUserProfile(data.user.id, 'email');
         // TODO: Migrate anonymous data to authenticated account
         localStorage.removeItem('mh_anonymous_id');
+        localStorage.removeItem('mh_device_key');
       }
 
       return { error: null };
@@ -253,9 +344,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
         .delete()
         .eq('user_id', user.id);
 
-      // Delete auth user
+      // Delete auth user (this would need admin privileges)
+      // Note: In production, this should be handled by a server-side function
       const { error } = await supabase.auth.admin.deleteUser(user.id);
       if (error) throw error;
+
+      // Clear local state
+      clearAuthState();
+      localStorage.removeItem('mh_anonymous_id');
+      localStorage.removeItem('mh_device_key');
 
       return { error: null };
     } catch (error) {
